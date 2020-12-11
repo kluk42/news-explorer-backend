@@ -15,6 +15,7 @@ const limiter = require('./middlewares/rate-limiter');
 const { PORT = 5000 } = process.env;
 const app = express();
 app.use(cors());
+app.set('trust proxy', 1);
 app.use(limiter);
 app.use(helmet());
 
