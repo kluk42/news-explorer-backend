@@ -47,11 +47,9 @@ const login = async (req, res, next) => {
   try {
     const { password, email } = req.body;
     const { NODE_ENV, JWT_SECRET } = process.env;
-    let doesItWork;
-    if (JWT_SECRET) doesItWork = true;
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
-    return res.status(200).send({ token, doesItWork });
+    return res.status(200).send({ token });
   } catch (err) {
     return next(err);
   }
