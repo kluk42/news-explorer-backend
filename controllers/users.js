@@ -43,32 +43,12 @@ const createUser = async (req, res, next) => {
   }
 };
 
-const updateUser = async (req, res, next) => {
-  try {
-    const oldUser = await User.findById(req.user);
-    const { name = oldUser.name, about = oldUser.about } = req.body;
-    const opts = { runValidators: true, new: true };
-    const updatedUser = await User.findByIdAndUpdate(req.user, { name, about }, opts)
-      .orFail(new NotFoundErr('Такого пользователя нет, зарегистрируйтесь'))
-      .catch((err) => {
-        if (err instanceof mongoose.Error.ValidationError) {
-          throw new WrongRequestErr('Введены некорректные данные');
-        } else {
-          throw err;
-        }
-      });
-    return res.status(200).send(updatedUser);
-  } catch (err) {
-    return next(err);
-  }
-};
-
 const login = async (req, res, next) => {
   try {
     const { password, email } = req.body;
+    const { NODE_ENV, JWT_SECRET } = process.env;
     const user = await User.findUserByCredentials(email, password);
-    const JWT_SECRET = '6161330a563a2857b56b2aa9773132b13955c9d8520992a9489fd8be5ae0d720';
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
     return res.status(200).send({ token });
   } catch (err) {
     return next(err);
@@ -78,6 +58,5 @@ const login = async (req, res, next) => {
 module.exports = {
   getMe,
   createUser,
-  updateUser,
   login,
 };
