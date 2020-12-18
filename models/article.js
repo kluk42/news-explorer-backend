@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { urlValidationForModel } = require('../middlewares/request-validation');
 
 const articleSchema = new mongoose.Schema({
   keyword: {
@@ -43,8 +44,7 @@ const articleSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        const regEx = /^https?:\/\/(www\.)?[\w-.~:/?#[\]@!$&'\\*+,;=]+#?$/gm;
-        return regEx.test(v);
+        return urlValidationForModel(v);
       },
       message: 'неправильная ссылка',
     },

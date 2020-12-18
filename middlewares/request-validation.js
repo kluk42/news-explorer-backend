@@ -23,6 +23,24 @@ const urlValidation = (value) => {
   return value;
 };
 
+const urlValidationForModel = (value) => {
+  const options = {
+    protocols: ['http', 'https'],
+    require_tld: true,
+    require_protocol: true,
+    require_host: true,
+    require_valid_protocol: true,
+    allow_underscores: true,
+    host_whitelist: false,
+    host_blacklist: false,
+    allow_trailing_dot: false,
+    allow_protocol_relative_urls: false,
+    disallow_auth: false,
+  };
+  const testResult = validator.isURL(value, options);
+  return testResult;
+};
+
 const tokenValidation = (value) => {
   if (!value.startsWith('Bearer ')) {
     throw new WrongRequestErr('В authorization отсутствует Bearer');
@@ -61,4 +79,5 @@ module.exports = {
   requestValidation,
   urlValidation,
   tokenValidation,
+  urlValidationForModel,
 };
