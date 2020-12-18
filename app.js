@@ -17,7 +17,8 @@ app.set('trust proxy', 1);
 app.use(limiter);
 app.use(helmet());
 
-const mongodbUrl = 'mongodb://localhost:27017/mydb';
+const { mongodbUrl } = process.env;
+
 mongoose.connect(mongodbUrl, {
   useNewUrlParser: true,
   useCreateIndex: true,
