@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const WrongRequestErr = require('../errors/wrong-request-err');
+const UnathorizedActionErr = require('../errors/unathorized-action-err');
 
 const urlValidation = (value) => {
   const options = {
@@ -41,16 +42,21 @@ const urlValidationForModel = (value) => {
   return testResult;
 };
 
-const tokenValidation = (value) => {
-  if (!value.startsWith('Bearer ')) {
-    throw new WrongRequestErr('В authorization отсутствует Bearer');
+const tokenValidation = (req, res, next) => {
+  const { authorization } = req.headers;
+  if (!authorization) {
+    const err = new UnathorizedActionErr('Не передан JWT токен');
+    return next(err);
   }
-  return value;
+  if (!authorization.startsWith('Bearer ')) {
+    const err = new WrongRequestErr('В authorization отсутствует Bearer');
+    return next(err);
+  }
+  return next();
 };
 
 const requestValidation = (req, res, next) => {
   const { id, cardId } = req.params;
-  const { authorization } = req.headers;
 
   if (((!mongoose.Types.ObjectId.isValid(id)) && (id !== undefined))) {
     const idErr = new WrongRequestErr('Неверный id');
@@ -60,16 +66,6 @@ const requestValidation = (req, res, next) => {
   if (((!mongoose.Types.ObjectId.isValid(cardId)) && (cardId !== undefined))) {
     const idErr = new WrongRequestErr('Неверный id карточки');
     return next(idErr);
-  }
-
-  if ((authorization !== undefined) && (!authorization.startsWith('Bearer '))) {
-    const tokenErr = new WrongRequestErr('В authorization отсутствует Bearer');
-    next(tokenErr);
-  }
-
-  if (!authorization) {
-    const tokenErr = new WrongRequestErr('Требуется авторизация');
-    next(tokenErr);
   }
 
   return next();

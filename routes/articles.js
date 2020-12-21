@@ -6,13 +6,9 @@ const {
   deleteArticle,
 } = require('../controllers/articles');
 const auth = require('../middlewares/auth');
-const { tokenValidation, urlValidation } = require('../middlewares/request-validation');
+const { urlValidation, tokenValidation } = require('../middlewares/request-validation');
 
-router.get('/articles', celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().custom(tokenValidation).required(),
-  }).unknown(true),
-}), auth, getArticles);
+router.get('/articles', tokenValidation, auth, getArticles);
 
 router.post('/articles', celebrate({
   body: Joi.object().keys({
@@ -24,18 +20,12 @@ router.post('/articles', celebrate({
     source: Joi.string().required(),
     image: Joi.string().custom(urlValidation).required(),
   }),
-  headers: Joi.object().keys({
-    authorization: Joi.string().custom(tokenValidation).required(),
-  }).unknown(true),
-}), auth, createArticle);
+}), tokenValidation, auth, createArticle);
 
 router.delete('/articles/:articleId', celebrate({
   params: Joi.object().keys({
     articleId: Joi.string().hex().length(24).required(),
   }),
-  headers: Joi.object().keys({
-    authorization: Joi.string().custom(tokenValidation).required(),
-  }).unknown(true),
-}), auth, deleteArticle);
+}), tokenValidation, auth, deleteArticle);
 
 module.exports = router;
