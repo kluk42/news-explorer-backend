@@ -1,7 +1,5 @@
-const mongoose = require('mongoose');
 const validator = require('validator');
 const WrongRequestErr = require('../errors/wrong-request-err');
-const UnathorizedActionErr = require('../errors/unathorized-action-err');
 
 const urlValidation = (value) => {
   const options = {
@@ -42,38 +40,7 @@ const urlValidationForModel = (value) => {
   return testResult;
 };
 
-const tokenValidation = (req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization) {
-    const err = new UnathorizedActionErr('Не передан JWT токен');
-    return next(err);
-  }
-  if (!authorization.startsWith('Bearer ')) {
-    const err = new WrongRequestErr('В authorization отсутствует Bearer');
-    return next(err);
-  }
-  return next();
-};
-
-const requestValidation = (req, res, next) => {
-  const { id, cardId } = req.params;
-
-  if (((!mongoose.Types.ObjectId.isValid(id)) && (id !== undefined))) {
-    const idErr = new WrongRequestErr('Неверный id');
-    return next(idErr);
-  }
-
-  if (((!mongoose.Types.ObjectId.isValid(cardId)) && (cardId !== undefined))) {
-    const idErr = new WrongRequestErr('Неверный id карточки');
-    return next(idErr);
-  }
-
-  return next();
-};
-
 module.exports = {
-  requestValidation,
   urlValidation,
-  tokenValidation,
   urlValidationForModel,
 };

@@ -8,7 +8,7 @@ const {
 const auth = require('../middlewares/auth');
 const { urlValidation, tokenValidation } = require('../middlewares/request-validation');
 
-router.get('/articles', tokenValidation, auth, getArticles);
+router.get('/articles', auth, getArticles);
 
 router.post('/articles', celebrate({
   body: Joi.object().keys({
@@ -20,12 +20,12 @@ router.post('/articles', celebrate({
     source: Joi.string().required(),
     image: Joi.string().custom(urlValidation).required(),
   }),
-}), tokenValidation, auth, createArticle);
+}), auth, createArticle);
 
 router.delete('/articles/:articleId', celebrate({
   params: Joi.object().keys({
     articleId: Joi.string().hex().length(24).required(),
   }),
-}), tokenValidation, auth, deleteArticle);
+}), auth, deleteArticle);
 
 module.exports = router;
